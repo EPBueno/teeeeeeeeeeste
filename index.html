@@ -94,14 +94,14 @@ textarea{min-height:85px;resize:vertical}input[type=range]{padding:0;box-shadow:
 .habit-period-control{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}.habit-period-control span{color:var(--muted)}.habit-period-control select{width:auto;min-width:118px;padding:8px 10px}
 .hk-meta{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}
 .hk-wrap{container-type:inline-size}
-.hk-scroll{--cs:clamp(10px,calc((100cqw - 20px - var(--n)*2px)/var(--n)),28px);overflow-x:auto;overflow-y:hidden;padding:0 4px}
-.hk-stage{position:relative;height:calc(var(--cs)*4.3 + 64px);width:calc(var(--n)*(var(--cs) + 2px));min-width:100%;perspective:1000px;perspective-origin:50% 0}
-.hk-grid{position:absolute;left:0;top:58px;display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,var(--cs));grid-template-columns:repeat(var(--n),var(--cs));gap:2px;transform-style:preserve-3d;transform-origin:50% 0;transform:rotateX(var(--tx,56deg)) rotateY(var(--ty,0deg));transition:transform .3s ease-out}
-.hk-cell{position:relative;width:var(--cs);height:var(--cs);padding:0;border:0;border-radius:3px;background:var(--tile);transform-style:preserve-3d;transition:transform .15s;--c:color-mix(in srgb,var(--tile) 88%,#fff)}
+.hk-scroll{padding-top:6px!important;--cs:clamp(10px,calc((100cqw - 40px - var(--n)*2px)/var(--n)),30px);overflow-x:auto;overflow-y:visible;padding:0 16px}
+.hk-stage{position:relative;height:calc(var(--cs)*8.6 + 90px);width:calc(var(--n)*(var(--cs) + 2px));min-width:100%;perspective:1000px;perspective-origin:50% 0}
+.hk-grid{position:absolute;left:0;top:calc(var(--cs)*2.2 + 44px);display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,var(--cs));grid-template-columns:repeat(var(--n),var(--cs));gap:2px;transform-style:preserve-3d;transform-origin:50% 0;transform:rotateX(var(--tx,50deg)) rotateY(var(--ty,0deg));transition:transform .3s ease-out}
+.hk-cell{position:relative;width:var(--cs);height:var(--cs);padding:0;border:0;border-radius:3px;background:var(--tile);transform-style:preserve-3d;transition:transform .15s;--c:color-mix(in srgb,var(--tile) 88%,#fff);--hh:calc(var(--cs)*(.3 + var(--f,0)*1.4))}.hk-cell.l0{--hh:2px}
 .hk-cell.l1{--c:var(--amber)}.hk-cell.l2{--c:var(--orange)}.hk-cell.l3{--c:var(--hot)}
 .hk-cell .t,.hk-cell .f{position:absolute;display:block;transition:filter .15s}
-.hk-cell .t{inset:0;border-radius:3px;background:var(--c);transform:translateZ(var(--h))}
-.hk-cell .f{left:0;bottom:0;width:100%;height:var(--h);background:color-mix(in srgb,var(--c) 58%,#000);transform-origin:bottom;transform:rotateX(-90deg)}
+.hk-cell .t{inset:0;border-radius:3px;background:var(--c);transform:translateZ(var(--hh))}
+.hk-cell .f{left:0;bottom:0;width:100%;height:var(--hh);background:color-mix(in srgb,var(--c) 58%,#000);transform-origin:bottom;transform:rotateX(-90deg)}
 .hk-cell:not(.l0) .t{animation:rise .7s cubic-bezier(.2,.9,.3,1.15) both;animation-delay:calc(var(--i)*14ms)}
 .hk-cell:not(.l0) .f{animation:grow .7s cubic-bezier(.2,.9,.3,1.15) both;animation-delay:calc(var(--i)*14ms)}
 @keyframes rise{from{transform:translateZ(0)}}@keyframes grow{from{height:0}}
@@ -212,8 +212,8 @@ function habitKit(){
  const total=dates.reduce((n,d)=>n+(c[d]||0),0),act=dates.filter(d=>c[d]).length;
  if(!selDay)selDay=today();
  const focusD=dates.includes(selDay)?selDay:dates[dates.length-1];
- const cells=dates.map((d,i)=>{const m=c[d]||0,lv=m>60?3:m>=40?2:m>0?1:0,h=m?Math.round(8+Math.min(m,120)/120*40):2;
-  return `<button class="hk-cell l${lv}${d===selDay?' sel':''}" data-d="${d}" style="--h:${h}px;--i:${Math.floor(i/7)}" tabindex="${d===focusD?0:-1}" aria-pressed="${d===selDay}" title="${fmtDate(d)}${m?` · ${m} min`:''}" aria-label="${fmtDate(d)}${m?` · ${m} minutos`:' · sem atividade'}"><i class="t"></i><i class="f"></i></button>`}).join('');
+ const cells=dates.map((d,i)=>{const m=c[d]||0,lv=m>60?3:m>=40?2:m>0?1:0,f=m?Math.min(m,120)/120:0;
+  return `<button class="hk-cell l${lv}${d===selDay?' sel':''}" data-d="${d}" style="--f:${f.toFixed(2)};--i:${Math.floor(i/7)}" tabindex="${d===focusD?0:-1}" aria-pressed="${d===selDay}" title="${fmtDate(d)}${m?` · ${m} min`:''}" aria-label="${fmtDate(d)}${m?` · ${m} minutos`:' · sem atividade'}"><i class="t"></i><i class="f"></i></button>`}).join('');
  return `<div class="hk"><div class="hk-meta"><span class="pill">${fmtMin(total)} no período</span><span class="pill">${act} ${act===1?'dia ativo':'dias ativos'}</span></div>
  <div class="hk-wrap" style="--n:${w}"><div class="hk-scroll"><div class="hk-stage"><div class="hk-grid" role="group" aria-label="Atividade por dia">${cells}</div></div></div></div>
  <div class="heatlabels"><span>${w} ${w===1?'semana':'semanas'} atrás</span><span>Hoje</span></div>
@@ -334,7 +334,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const c=e.target.closest('.hk-cell');if(c)selectDay(c.dataset.d)});
 // reação ao cursor: cartões inclinam, o HabitKit gira levemente
 document.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||reduceMotion.matches)return;const t=e.target.closest?.('.tilt,.hk-wrap');if(!t)return;const r=t.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
- if(t.classList.contains('hk-wrap')){t.style.setProperty('--ty',(x*12).toFixed(1)+'deg');t.style.setProperty('--tx',(56-y*8).toFixed(1)+'deg')}else{t.style.setProperty('--ry',(x*9).toFixed(1)+'deg');t.style.setProperty('--rx',(-y*9).toFixed(1)+'deg')}});
+ if(t.classList.contains('hk-wrap')){t.style.setProperty('--ty',(x*12).toFixed(1)+'deg');t.style.setProperty('--tx',(50-y*8).toFixed(1)+'deg')}else{t.style.setProperty('--ry',(x*9).toFixed(1)+'deg');t.style.setProperty('--rx',(-y*9).toFixed(1)+'deg')}});
 document.addEventListener('pointerout',e=>{const t=e.target.closest?.('.tilt,.hk-wrap');if(t&&!t.contains(e.relatedTarget))['--rx','--ry','--tx','--ty'].forEach(p=>t.style.removeProperty(p))});
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(db.settings.theme==='auto')render()});
 render();
